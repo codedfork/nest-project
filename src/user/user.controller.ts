@@ -1,15 +1,15 @@
-import { Controller, Post, Get, Logger, Body, Req, Res, Param } from "@nestjs/common";
+import { Controller, Post, Get, Logger, Body, Req, Res, Param, UseGuards } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { UserDto, UUIDDTO } from "./user.dto";
 import { plainToInstance } from "class-transformer";
 import { validate, validateOrReject, ValidationError } from "class-validator";
 import { Request, Response } from "express";
 import { apiResponseOk, apiResponseBadRequest, apiResponseServerError } from "src/utils/apiHandler";
-import { User } from "./user.entity";
 import { ApiResponseMessages } from "src/common/api-response-messages";
 import logger from "src/utils/logger";
 import { JwtService } from '@nestjs/jwt'
 import { JwtPayload } from "jsonwebtoken";
+import { JwtAuthGuard } from "src/auth/jwt-auth.gaurd";
 
 
 @Controller('/user')
@@ -22,7 +22,7 @@ export default class UserController {
     public async create(@Body() reqBody: UserDto, @Res() res: Response) {
         try {
             const createdUser = await this.userService.createUser(reqBody);
-            apiResponseOk(createdUser, res);
+            apiResponseOk({createdUser,message:ApiResponseMessages.SUCCESS}, res);
         }
         catch (error) {
 
@@ -70,6 +70,7 @@ export default class UserController {
         }
     }
 
+    @UseGuards(JwtAuthGuard)
     @Get('/get')
     public async get(@Res() res: Response) {
         try {
