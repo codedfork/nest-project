@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Real-Time Drawing</title>
+  <style>
+    canvas {
+      border: 1px solid black;
+      cursor: crosshair;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas" width="500" height="500"></canvas>
+
+  <script src="https://cdn.socket.io/4.0.1/socket.io.min.js"></script>
+  <script>
+    // Connect to the WebSocket server
+    const socket = io('http://localhost:3001');
+
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let drawing = false;
+    let lastX, lastY;
+
+    // Start drawing
+    canvas.addEventListener('mousedown', (e) => {
+      drawing = true;
+      [lastX, lastY] = [e.offsetX, e.offsetY];
+    });
+
+    // Stop drawing
+    canvas.addEventListener('mouseup', () => {
+      drawing = false;
+    });
+
+    // Draw on the canvas and send the drawing data to the server
+    canvas.addEventListener('mousemove', (e) => {
+      if (!drawing) return;
+      
+      const { offsetX, offsetY } = e;
+      const data = { 
+        x: offsetX, 
+        y: offsetY, 
+        lastX, 
+        lastY, 
+        color: 'black', 
+        lineWidth: 2 
+      };
+      
+      // Send drawing data to the server
+      socket.emit('draw', data);
+      
+      // Draw on the client's own canvas
+      ctx.beginPath();
+      ctx.moveTo(lastX, lastY);
+      ctx.lineTo(offsetX, offsetY);
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = data.lineWidth;
+      ctx.stroke();
+      
+      [lastX, lastY] = [offsetX, offsetY];
+    });
+
+    // Listen for drawing data from the server (other clients)
+    socket.on('draw', (data) => {
+      ctx.beginPath();
+      ctx.moveTo(data.lastX, data.lastY);
+      ctx.lineTo(data.x, data.y);
+      ctx.strokeStyle = data.color;
+      ctx.lineWidth = data.lineWidth;
+      ctx.stroke();
+    });
+  </script>
+</body>
+</html>

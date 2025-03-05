@@ -23,10 +23,11 @@ export class UserService {
         try {
             const users = await this.userRepository.find({
                 select: ['id', 'name', 'email', 'address'],
-                // relations: ['posts']
+                relations: ['paidExpenses', 'owedExpenses']
             });
             return users;
         } catch (error) {
+            console.log(error);
             throw new Error('Error fetching users');
         }
     }

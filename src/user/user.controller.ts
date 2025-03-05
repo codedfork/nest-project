@@ -10,6 +10,7 @@ import logger from "src/utils/logger";
 import { JwtService } from '@nestjs/jwt'
 import { JwtPayload } from "jsonwebtoken";
 import { JwtAuthGuard } from "src/auth/jwt-auth.gaurd";
+import { Throttle } from "@nestjs/throttler";
 
 
 @Controller('/user')
@@ -22,7 +23,7 @@ export default class UserController {
     public async create(@Body() reqBody: UserDto, @Res() res: Response) {
         try {
             const createdUser = await this.userService.createUser(reqBody);
-            apiResponseOk({createdUser,message:ApiResponseMessages.SUCCESS}, res);
+            apiResponseOk({ createdUser, message: ApiResponseMessages.SUCCESS }, res);
         }
         catch (error) {
 
@@ -69,7 +70,8 @@ export default class UserController {
             }
         }
     }
-
+    // (5 * 60 * 1000)
+    @Throttle({ default: { limit: 10, ttl: 10  } })
     @UseGuards(JwtAuthGuard)
     @Get('/get')
     public async get(@Res() res: Response) {

@@ -5,20 +5,26 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { User } from "./user.entity";
 import { JwtService } from "@nestjs/jwt";
 import { JwtModule } from "@nestjs/jwt";
+import { APP_GUARD } from "@nestjs/core";
+import { ThrottlerGuard } from "@nestjs/throttler";
+import { Expense } from "src/expense/expense.entity";
 
 
 
 @Module({
-    imports:[TypeOrmModule.forFeature([User]), JwtModule.register({
-          secret: process.env.JWT_SECRET,  // Your secret key
-          signOptions: { expiresIn: '60m' },  // Token expiration time
-        }),],
-    providers:[UserService, JwtService],
-    controllers:[UserController],
-    
+    imports: [TypeOrmModule.forFeature([User, Expense]), JwtModule.register({
+        secret: process.env.JWT_SECRET,  // Your secret key
+        signOptions: { expiresIn: '60m' },  // Token expiration time
+    }),],
+    providers: [UserService, JwtService, {
+        provide: APP_GUARD,
+        useClass: ThrottlerGuard
+    },],
+    controllers: [UserController],
+
 })
 
 
 export class UserModule {
-    
+
 }

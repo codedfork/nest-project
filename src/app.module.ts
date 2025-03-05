@@ -6,10 +6,22 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { User } from './user/user.entity';
 import { AuthModule } from './auth/auth.module';
+import { DrawingGateway } from './websocket/events.gateway';
+import { ThrottlerModule } from '@nestjs/throttler';
+import { ExpenseModule } from './expense/expense.module';
+import { Expense } from './expense/expense.entity';
 
 
 @Module({
   imports: [
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 10,
+        },
+      ],
+    }),
     ConfigModule.forRoot({
       isGlobal: true, // Makes the configuration globally available in your app
       envFilePath: '.env', // Specify the path to your .env file (default is '.env')
@@ -23,14 +35,14 @@ import { AuthModule } from './auth/auth.module';
       database: process.env.DB_NAME || "your_database_name", // Database name
       synchronize: true, // Automatically synchronize your schema (useful in development)
       logging: true, // Enable query logging (for development and debugging)
-      entities: [User], // Specify your entities here
+      entities: [User, Expense], // Specify your entities here
       migrations: [], // Optionally, specify migrations if you're using them
       subscribers: [], // Optional, for event listeners
     }),
 
-    UserModule, AuthModule
+    UserModule, AuthModule, ExpenseModule
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, DrawingGateway],
 })
 export class AppModule { }

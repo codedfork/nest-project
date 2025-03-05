@@ -41,8 +41,8 @@ export function apiResponseConflict(data: any, res: Response) {
 }
 
 // 500 Internal Server Error - Used for general server errors
-export function apiResponseServerError(data: any, res: Response) {
-    res.status(500).send({ data, status: 500 });
+export function apiResponseServerError(error: any, res: Response) {
+    res.status(500).send({ error, status: 500 });
 }
 
 // 502 Bad Gateway - When an intermediary server (e.g., a proxy or gateway) receives an invalid response from the upstream server

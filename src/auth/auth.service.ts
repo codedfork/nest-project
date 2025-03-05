@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
-import { IAuthPayload, IJwtPayload } from "./auth.interface";
+import { IAuthPayload, IJwtPayload, IJwtPayloadGoogle } from "./auth.interface";
 import { User } from "src/user/user.entity";
 import { Repository } from "typeorm";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -11,8 +11,8 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     constructor(@InjectRepository(User) private readonly userRepository: Repository<User>, private readonly jwtService: JwtService) { }
     // Create JWT for a user
-    async createToken(jwtPayload: IJwtPayload): Promise<string> {
-        return this.jwtService.sign({ email: jwtPayload.email, id: jwtPayload.id }, { secret: '12345' }); // Creates a JWT
+    async createToken(jwtPayload: IJwtPayload | IJwtPayloadGoogle): Promise<string> {
+        return this.jwtService.sign(jwtPayload, { secret: '12345' }); // Creates a JWT
     }
 
     // Validate user (can be used in your real authentication flow)
