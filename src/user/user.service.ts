@@ -23,7 +23,7 @@ export class UserService {
         try {
             const users = await this.userRepository.find({
                 select: ['id', 'name', 'email', 'address'],
-                relations: ['paidExpenses', 'owedExpenses']
+                relations: ['paidExpenses']
             });
             return users;
         } catch (error) {

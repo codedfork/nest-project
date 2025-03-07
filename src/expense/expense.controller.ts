@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res } from "@nestjs/common";
+import { Controller, Post, Body, Get, Res } from "@nestjs/common";
 import { AddExpenseDto } from "./expense.dto";
 import { ExpenseService } from "./expense.service";
 import { apiResponseOk, apiResponseServerError } from "src/utils/apiHandler";
@@ -21,4 +21,18 @@ export class ExpenseController {
             apiResponseServerError(error, res);
         }
     }
+
+    //Get all expenses
+    @Get('/get')
+    public async get(@Res() res: Response) {
+        try {
+            const expenses = await this.expenseService.getAll();
+            if (expenses) {
+                apiResponseOk({ expenses, message: ApiResponseMessages.FETCHED }, res);
+            }
+        } catch (error) {
+
+        }
+    }
+
 }

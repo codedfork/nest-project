@@ -1,8 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn, Unique, IsNull, OneToMany, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, Unique, IsNull, OneToMany, ManyToMany, CreateDateColumn, UpdateDateColumn } from 'typeorm';
 import { Exclude } from 'class-transformer';
 import { Expense } from 'src/expense/expense.entity';
-// import { Post } from '../post/post.model';
-// import { Role } from '../role/role.model';
+import { ExpenseSplit } from 'src/expense/expenseSplit.entity';
 @Entity()
 export class User {
     @PrimaryGeneratedColumn('uuid')
@@ -24,14 +23,12 @@ export class User {
     @OneToMany(() => Expense, expense => expense.paidBy)
     paidExpenses: Expense[]
 
-    @OneToMany(() => Expense, expense => expense.owedBy)
-    owedExpenses: Expense[]
+    @OneToMany(() => ExpenseSplit, expenseSplit => expenseSplit.user)
+    expenseSplits: ExpenseSplit[]
 
+    @CreateDateColumn()
+    createdAt: Date
 
-
-    // @OneToMany(()=>Post, post=>post.user)
-    // posts:Post[]
-
-    // @ManyToOne(()=>Role, role=>role.user)
-    // role:Role
+    @UpdateDateColumn()
+    updatedAt: Date
 }

@@ -1,5 +1,6 @@
 import { IsArray, IsNotEmpty, IsOptional, IsUUID } from "class-validator";
 import { User } from "src/user/user.entity";
+import { CreateDateColumn, UpdateDateColumn } from "typeorm";
 
 export class AddExpenseDto {
     @IsOptional()
@@ -12,7 +13,6 @@ export class AddExpenseDto {
     @IsUUID()
     paidBy: User
 
-    @IsNotEmpty()
-    @IsArray()
-    owedBy: User[]
+  
+
 }

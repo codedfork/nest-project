@@ -4,5 +4,10 @@ export interface IAddExpense {
     description: string;
     amount: number;
     paidBy: User;
-    owedBy: User[];
+    owedBy?:string[]
+}
+
+export interface IAddExpenseOwedByUser {
+    expenseId: string;
+    userIds: string[];
 }

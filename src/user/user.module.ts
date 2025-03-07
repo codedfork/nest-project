@@ -8,11 +8,12 @@ import { JwtModule } from "@nestjs/jwt";
 import { APP_GUARD } from "@nestjs/core";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { Expense } from "src/expense/expense.entity";
+import { ExpenseSplit } from "src/expense/expenseSplit.entity";
 
 
 
 @Module({
-    imports: [TypeOrmModule.forFeature([User, Expense]), JwtModule.register({
+    imports: [TypeOrmModule.forFeature([User, Expense, ExpenseSplit]), JwtModule.register({
         secret: process.env.JWT_SECRET,  // Your secret key
         signOptions: { expiresIn: '60m' },  // Token expiration time
     }),],

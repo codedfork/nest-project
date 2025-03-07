@@ -1,5 +1,6 @@
 import { User } from "src/user/user.entity";
-import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, UpdateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+import { ExpenseSplit } from "./expenseSplit.entity";
 
 @Entity()
 export class Expense {
@@ -15,9 +16,13 @@ export class Expense {
     @ManyToOne(() => User, user => user.id)
     paidBy: User
 
+    @OneToMany(() => ExpenseSplit, expenseSplit => expenseSplit.expense)
+    splits: ExpenseSplit[]
 
-    @ManyToMany(() => User, user => user.id)
-    @JoinTable()  // This will create the join table in the database
-    owedBy: User[]
 
+    @CreateDateColumn()
+    createdAt: Date
+
+    @UpdateDateColumn()
+    updatedAt: Date
 }

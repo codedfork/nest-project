@@ -10,6 +10,7 @@ import { DrawingGateway } from './websocket/events.gateway';
 import { ThrottlerModule } from '@nestjs/throttler';
 import { ExpenseModule } from './expense/expense.module';
 import { Expense } from './expense/expense.entity';
+import { ExpenseSplit } from './expense/expenseSplit.entity';
 
 
 @Module({
@@ -35,7 +36,7 @@ import { Expense } from './expense/expense.entity';
       database: process.env.DB_NAME || "your_database_name", // Database name
       synchronize: true, // Automatically synchronize your schema (useful in development)
       logging: true, // Enable query logging (for development and debugging)
-      entities: [User, Expense], // Specify your entities here
+      entities: [User, Expense, ExpenseSplit], // Specify your entities here
       migrations: [], // Optionally, specify migrations if you're using them
       subscribers: [], // Optional, for event listeners
     }),
