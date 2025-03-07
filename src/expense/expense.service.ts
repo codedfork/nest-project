@@ -5,7 +5,6 @@ import { Expense } from "./expense.entity";
 import { Repository, In } from "typeorm";
 import { ExpenseSplit } from "./expenseSplit.entity";
 import { User } from "src/user/user.entity";
-import { create } from "domain";
 
 @Injectable()
 export class ExpenseService {
@@ -55,6 +54,22 @@ export class ExpenseService {
         const expenses = await this.expenseRepository.find({
             relations: ['paidBy', 'splits.user']
         });
+        return expenses;
+    }
+
+    /**
+     * Get user specific expenses
+     */
+    public async getExpensesByUserId(userId: string) {
+        const expenses = await this.userRepository.findOne({ where: { id: userId }, relations: ['paidExpenses'] })
+        return expenses;
+    }
+
+    /**
+     * Get split or owed expenses based on user id
+     */
+    public async getSplitExpensesByUserId(userId: string) {
+        const expenses = await this.userRepository.findOne({ where: { id: userId }, relations: ['expenseSplits', 'expenseSplits.expense.paidBy'] })
         return expenses;
     }
 }

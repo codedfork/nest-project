@@ -1,9 +1,9 @@
-import { Controller, Post, Body, Get, Res } from "@nestjs/common";
-import { AddExpenseDto } from "./expense.dto";
+import { Controller, Post, Body, Get, Res, Param } from "@nestjs/common";
+import { AddExpenseDto, UserIdDto } from "./expense.dto";
 import { ExpenseService } from "./expense.service";
 import { apiResponseOk, apiResponseServerError } from "src/utils/apiHandler";
 import { ApiResponseMessages } from "src/common/api-response-messages";
-import { Response } from "express";
+import { Request, Response } from "express";
 
 @Controller('/expense')
 export class ExpenseController {
@@ -31,7 +31,31 @@ export class ExpenseController {
                 apiResponseOk({ expenses, message: ApiResponseMessages.FETCHED }, res);
             }
         } catch (error) {
+            apiResponseServerError(error, res);
 
+        }
+    }
+
+    //Get user specific expenses
+    @Get('/get/:userId')
+    public async getExpensesByUserId(@Param() params: UserIdDto, @Res() res: Response) {
+        try {
+            const expenses = await this.expenseService.getExpensesByUserId(params.userId);
+            apiResponseOk({ expenses, message: ApiResponseMessages.FETCHED }, res);
+        } catch (error) {
+            console.log(error);
+            apiResponseServerError(error, res);
+        }
+    }
+    //Get user specific split expenses
+    @Get('/get/split/:userId')
+    public async getSplitExpensesByUserId(@Param() params: UserIdDto, @Res() res: Response) {
+        try {
+            const expenses = await this.expenseService.getSplitExpensesByUserId(params.userId);
+            apiResponseOk({ expenses, message: ApiResponseMessages.FETCHED }, res);
+        } catch (error) {
+            console.log(error);
+            apiResponseServerError(error, res);
         }
     }
 
