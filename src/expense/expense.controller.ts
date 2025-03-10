@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Get, Res, Param } from "@nestjs/common";
-import { AddExpenseDto, UserIdDto } from "./expense.dto";
+import { AddExpenseDto, UpdateExpenseDto, UserIdDto } from "./expense.dto";
 import { ExpenseService } from "./expense.service";
 import { apiResponseOk, apiResponseServerError } from "src/utils/apiHandler";
 import { ApiResponseMessages } from "src/common/api-response-messages";
@@ -58,5 +58,18 @@ export class ExpenseController {
             apiResponseServerError(error, res);
         }
     }
+
+    //Edit an expense 
+    @Post('/update')
+    public async updateExpense(@Body() payload: UpdateExpenseDto, @Res() res: Response) {
+        try {
+            const updatedExpense = await this.expenseService.updateExpense(payload.expenseId, payload.owedBy, payload.expense);
+            apiResponseOk({ updatedExpense, message: "Expense Updated" }, res);
+        } catch (error: any) {
+            console.log(error);
+            apiResponseServerError({ error, "message": "Somthing Went wrong" }, res);
+        }
+    }
+
 
 }

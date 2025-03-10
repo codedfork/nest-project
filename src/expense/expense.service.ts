@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { IAddExpense, IAddExpenseOwedByUser } from "./expense.interface";
+import { IAddExpense, IUpdateExpense, IAddExpenseOwedByUser } from "./expense.interface";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Expense } from "./expense.entity";
 import { Repository, In } from "typeorm";
@@ -72,4 +72,70 @@ export class ExpenseService {
         const expenses = await this.userRepository.findOne({ where: { id: userId }, relations: ['expenseSplits', 'expenseSplits.expense.paidBy'] })
         return expenses;
     }
+
+    /**
+     * Update an expense
+     */
+    public async updateExpense(expenseId: string, owedBy: Array<string>, payload: Partial<IUpdateExpense>) {
+        const expense = await this.expenseRepository.findOne({ where: { id: expenseId }, relations: ['paidBy', 'splits.user'] });
+
+        if (expense) {
+            const updatedExpense = await this.expenseRepository.save(expense);
+
+            const oldAmount = expense?.amount;
+            const oldSplits = expense?.splits;
+            if (payload.amount && payload.amount !== oldAmount) {
+                const splitAmount = payload.amount / (owedBy.length + 1); //Adding 1 to split the same amount for payer
+                const users = await this.userRepository.find({ where: { id: In(owedBy) } })
+                const splitExpenses = users.map((user) => {
+                    return this.expenseSplitRepository.create({
+                        expense,
+                        user,
+                        splitAmount
+                    });
+                })
+
+                //Saving batches of split expenses
+                if (splitExpenses) {
+                    this.expenseSplitRepository.save(splitExpenses);
+                }
+            }
+            //Split expense in users
+            // if (owedBy?.length && updatedExpense) {
+            //     const splitAmount = createdExpense.amount / (payload.owedBy.length + 1); //Adding 1 to split the same amount for payer
+
+            //     const users = await this.userRepository.find({ where: { id: In(payload.owedBy) } })
+
+            //     const splitExpenses = users.map((user) => {
+            //         return this.expenseSplitRepository.create({
+            //             expense,
+            //             user,
+            //             splitAmount
+            //         });
+            //     })
+
+            //     //Saving batches of split expenses
+            //     if (splitExpenses) {
+            //         this.expenseSplitRepository.save(splitExpenses);
+            //     }
+            // }
+        }
+
+        return expense;
+    }
+
+    //Delete old split entry if amount is changed while updating an previous expense
+
+    public async deleteOldSplits(oldSplits: Array<ExpenseSplit>) {
+        if (oldSplits) {
+            const oldSplitIds: any = oldSplits.map(split => split.id);
+            const deletedRecords = await this.expenseSplitRepository.delete({ id: oldSplitIds })
+        }
+        // const splitIds: Array<number> = 
+        // if (expenseId) {
+        //     const deleted: boolean = await this.expenseSplitRepository.delete({ expense: expenseId })
+        // }
+    }
+
+
 }
